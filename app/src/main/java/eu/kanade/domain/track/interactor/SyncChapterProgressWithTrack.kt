@@ -25,10 +25,6 @@ class SyncChapterProgressWithTrack(
         remoteTrack: Track,
         tracker: Tracker,
     ) {
-        if (tracker !is EnhancedTracker) {
-            return
-        }
-
         val sortedChapters = getChaptersByMangaId.await(mangaId)
             .sortedBy { it.chapterNumber }
             .filter { it.isRecognizedNumber }
@@ -36,6 +32,17 @@ class SyncChapterProgressWithTrack(
         val chapterUpdates = sortedChapters
             .filter { chapter -> chapter.chapterNumber <= remoteTrack.lastChapterRead && !chapter.read }
             .map { ChapterUpdate(it.id) { read = true } }
+
+        if (tracker !is EnhancedTracker) {
+            // Chapters read on another device, e.g. in the browser, only reach the tracker; the tracker already gets
+            // this device's progress while reading, so only the chapter list needs catching up.
+            try {
+                updateChapter.awaitAll(chapterUpdates)
+            } catch (e: Throwable) {
+                logcat(LogPriority.WARN, e)
+            }
+            return
+        }
 
         // only take into account continuous reading
         val localLastRead = sortedChapters.takeWhile { it.read }.lastOrNull()?.chapterNumber ?: 0F

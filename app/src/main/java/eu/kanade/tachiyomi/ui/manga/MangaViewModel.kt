@@ -338,6 +338,13 @@ class MangaViewModel(
                 )
                 isRefreshingData.value = false
             }
+
+            // Picks up chapters read on another device. Silent: it runs on every visit, also offline.
+            if (loadedState.hasLoggedInTrackers) {
+                refreshTracks.await(mangaId).forEach { (tracker, e) ->
+                    logcat(LogPriority.WARN, e) { "Failed to refresh track data mangaId=$mangaId for ${tracker?.name}" }
+                }
+            }
         }
     }
 
