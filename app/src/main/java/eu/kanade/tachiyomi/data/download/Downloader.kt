@@ -14,6 +14,8 @@ import eu.kanade.tachiyomi.network.HttpException
 import eu.kanade.tachiyomi.source.UnmeteredSource
 import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.online.HttpSource
+import eu.kanade.tachiyomi.ui.reader.setting.ReaderPreferences
+import eu.kanade.tachiyomi.ui.reader.translate.PageTranslator
 import eu.kanade.tachiyomi.util.storage.DiskUtil
 import eu.kanade.tachiyomi.util.storage.DiskUtil.NOMEDIA_FILE
 import eu.kanade.tachiyomi.util.storage.saveTo
@@ -83,6 +85,7 @@ class Downloader(
     private val sourceManager: SourceManager,
     private val chapterCache: ChapterCache,
     private val downloadPreferences: DownloadPreferences,
+    private val readerPreferences: ReaderPreferences,
     private val xml: XML,
     private val getCategories: GetCategories,
     private val getTracks: GetTracks,
@@ -491,6 +494,8 @@ class Downloader(
                 return
             }
 
+            pretranslate(download, tmpDir)
+
             createComicInfoFile(
                 tmpDir,
                 download.manga,
@@ -515,6 +520,24 @@ class Downloader(
             logcat(LogPriority.ERROR, error)
             download.status = Download.State.ERROR
             notifier.onError(error.message, download.chapter.name, download.manga.title, download.manga.id)
+        }
+    }
+
+    /**
+     * Translates the chapter's pages while the connection is there, so it opens translated offline. A failure only
+     * costs that: the download itself still completes.
+     */
+    private suspend fun pretranslate(download: Download, tmpDir: UniFile) {
+        val translator = PageTranslator.get(context, readerPreferences)
+        if (!translator.isEnabled) return
+        val pages = tmpDir.listFiles().orEmpty()
+            .filter { file -> ImageUtil.isImage(file.name) { file.openInputStream() } }
+            .sortedBy { it.name }
+        try {
+            translator.pretranslate(pages.map { file -> { file.openInputStream() } }, download.manga.id)
+        } catch (e: Throwable) {
+            if (e is CancellationException) throw e
+            logcat(LogPriority.WARN, e) { "Failed to translate ${download.chapter.name}" }
         }
     }
 

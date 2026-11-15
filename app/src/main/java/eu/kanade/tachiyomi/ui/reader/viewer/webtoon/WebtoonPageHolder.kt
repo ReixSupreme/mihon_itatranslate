@@ -205,14 +205,17 @@ class WebtoonPageHolder(
             } else {
                 null
             }
+            // A page translated earlier, e.g. while downloading, shows up translated right away, also offline.
+            val alreadyTranslated = toTranslate?.let { translator.fromCache(it) }
             withContext(Dispatchers.Main) {
-                frame.setImage(source, isAnimated, config)
+                frame.setImage(alreadyTranslated ?: source, isAnimated, config)
                 removeErrorLayout()
             }
             // The original stays on screen until the Italian version is ready.
             val mangaId = page?.chapter?.chapter?.mangaId
             val translated = if (toTranslate != null &&
-                mangaId != null
+                mangaId != null &&
+                alreadyTranslated == null
             ) {
                 translator.translateForReader(toTranslate, mangaId)
             } else {

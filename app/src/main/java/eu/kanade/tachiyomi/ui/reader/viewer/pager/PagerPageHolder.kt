@@ -175,15 +175,18 @@ class PagerPageHolder(
             } else {
                 null
             }
+            // A page translated earlier, e.g. while downloading, shows up translated right away, also offline.
+            val alreadyTranslated = toTranslate?.let { translator.fromCache(it) }
             withContext(Dispatchers.Main) {
-                setImage(source, isAnimated, config)
+                setImage(alreadyTranslated ?: source, isAnimated, config)
                 if (!isAnimated) {
                     pageBackground = background
                 }
                 removeErrorLayout()
             }
             // The original stays on screen until the Italian version is ready.
-            val translated = toTranslate?.let { translator.translateForReader(it, page.chapter.chapter.mangaId) }
+            val translated = toTranslate?.takeIf { alreadyTranslated == null }
+                ?.let { translator.translateForReader(it, page.chapter.chapter.mangaId) }
             if (translated != null) {
                 withContext(Dispatchers.Main) { setImage(translated, false, config) }
             }
