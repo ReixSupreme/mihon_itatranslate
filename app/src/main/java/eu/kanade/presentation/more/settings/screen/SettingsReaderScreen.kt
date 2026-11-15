@@ -102,6 +102,11 @@ object SettingsReaderScreen : SearchableSettings {
                     preference = readerPreferences.deepSeekModel,
                     title = stringResource(MR.strings.pref_deepseek_model),
                 ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = readerPreferences.translateWhileDownloading,
+                    title = stringResource(MR.strings.pref_translate_while_downloading),
+                    subtitle = stringResource(MR.strings.pref_translate_while_downloading_summary),
+                ),
             ),
         )
     }

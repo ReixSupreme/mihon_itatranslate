@@ -529,7 +529,8 @@ class Downloader(
      */
     private suspend fun pretranslate(download: Download, tmpDir: UniFile) {
         val translator = PageTranslator.get(context, readerPreferences)
-        if (!translator.isEnabled) return
+        if (!readerPreferences.translateWhileDownloading.get()) return
+        if (!translator.isEnabledFor(download.manga.id, download.source.lang)) return
         val pages = tmpDir.listFiles().orEmpty()
             .filter { file -> ImageUtil.isImage(file.name) { file.openInputStream() } }
             .sortedBy { it.name }

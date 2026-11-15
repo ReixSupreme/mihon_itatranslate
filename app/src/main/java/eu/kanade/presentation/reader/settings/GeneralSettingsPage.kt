@@ -6,6 +6,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import eu.kanade.tachiyomi.ui.reader.setting.ReaderPreferences
 import eu.kanade.tachiyomi.ui.reader.setting.ReaderSettingsViewModel
@@ -46,6 +47,22 @@ internal fun ColumnScope.GeneralPage(viewModel: ReaderSettingsViewModel) {
 
     val flashColorPref = viewModel.preferences.flashColor
     val flashColor by flashColorPref.collectAsState()
+
+    val translateToItalian by viewModel.preferences.translateToItalian.collectAsState()
+    val excludedFromTranslation by viewModel.preferences.translateExcludedManga.collectAsState()
+    val mangaId = viewModel.mangaFlow.collectAsState().value?.id
+    if (translateToItalian && mangaId != null) {
+        CheckboxItem(
+            label = stringResource(MR.strings.reader_translate_this_series),
+            checked = mangaId.toString() !in excludedFromTranslation,
+            onClick = {
+                val id = mangaId.toString()
+                viewModel.preferences.translateExcludedManga.set(
+                    if (id in excludedFromTranslation) excludedFromTranslation - id else excludedFromTranslation + id,
+                )
+            },
+        )
+    }
 
     SettingsChipRow(MR.strings.pref_reader_theme) {
         themes.map { (labelRes, value) ->

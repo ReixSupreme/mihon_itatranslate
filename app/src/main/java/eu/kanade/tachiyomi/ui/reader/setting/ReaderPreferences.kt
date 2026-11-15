@@ -221,6 +221,17 @@ class ReaderPreferences(
         DeepSeekTranslator.DEFAULT_MODEL,
     )
 
+    val translateWhileDownloading: Preference<Boolean> = preferenceStore.getBoolean(
+        "pref_translate_while_downloading",
+        true,
+    )
+
+    /** Ids of the entries read as they are, e.g. already in Italian. */
+    val translateExcludedManga: Preference<Set<String>> = preferenceStore.getStringSet(
+        "pref_translate_excluded_manga",
+        emptySet(),
+    )
+
     // endregion
 
     // region WebGpu

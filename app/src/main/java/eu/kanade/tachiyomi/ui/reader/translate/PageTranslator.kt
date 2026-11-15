@@ -54,6 +54,10 @@ class PageTranslator private constructor(context: Context, private val preferenc
     val isEnabled: Boolean
         get() = preferences.translateToItalian.get() && preferences.deepSeekApiKey.get().isNotBlank()
 
+    /** Whether pages of [mangaId] get translated: not when already in Italian, by source or by the user's choice. */
+    fun isEnabledFor(mangaId: Long, sourceLang: String?): Boolean =
+        isEnabled && sourceLang != "it" && mangaId.toString() !in preferences.translateExcludedManga.get()
+
     @Volatile
     private var lastError: String? = null
 

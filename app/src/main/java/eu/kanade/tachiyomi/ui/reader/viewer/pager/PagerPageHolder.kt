@@ -168,8 +168,9 @@ class PagerPageHolder(
             )
             val translator = PageTranslator.get(context, viewer.activity.appGraph.readerPreferences)
             // The view consumes the image it shows, so keep a copy to translate.
+            val sourceLang = viewer.activity.viewModel.source?.lang
             val toTranslate = if (!isAnimated &&
-                translator.isEnabled
+                translator.isEnabledFor(page.chapter.chapter.mangaId, sourceLang)
             ) {
                 Buffer().also { source.peek().readAll(it) }
             } else {

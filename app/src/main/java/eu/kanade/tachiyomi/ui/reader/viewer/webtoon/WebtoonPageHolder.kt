@@ -198,8 +198,11 @@ class WebtoonPageHolder(
             )
             val translator = PageTranslator.get(context, viewer.readerPreferences)
             // The view consumes the image it shows, so keep a copy to translate.
+            val mangaId = page?.chapter?.chapter?.mangaId
+            val sourceLang = viewer.activity.viewModel.source?.lang
             val toTranslate = if (!isAnimated &&
-                translator.isEnabled
+                mangaId != null &&
+                translator.isEnabledFor(mangaId, sourceLang)
             ) {
                 Buffer().also { source.peek().readAll(it) }
             } else {
@@ -212,7 +215,6 @@ class WebtoonPageHolder(
                 removeErrorLayout()
             }
             // The original stays on screen until the Italian version is ready.
-            val mangaId = page?.chapter?.chapter?.mangaId
             val translated = if (toTranslate != null &&
                 mangaId != null &&
                 alreadyTranslated == null
