@@ -91,3 +91,6 @@
     public <init>();
     public void destroy();
 }
+
+# ONNX Runtime's native code reaches its Java classes by name; its own rules only keep the telemetry ones
+-keep class ai.onnxruntime.** { *; }

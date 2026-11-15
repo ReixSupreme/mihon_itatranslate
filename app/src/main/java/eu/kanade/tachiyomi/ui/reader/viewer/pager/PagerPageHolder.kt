@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.ui.reader.model.ReaderPage
+import eu.kanade.tachiyomi.ui.reader.translate.PageTranslator
 import eu.kanade.tachiyomi.ui.reader.viewer.ReaderPageErrorView
 import eu.kanade.tachiyomi.ui.reader.viewer.ReaderPageImageView
 import eu.kanade.tachiyomi.ui.reader.viewer.ReaderProgressIndicator
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import logcat.LogPriority
+import mihon.app.di.appGraph
 import okio.Buffer
 import tachiyomi.core.common.util.system.ImageUtil
 import tachiyomi.core.common.util.system.logcat
@@ -157,22 +159,33 @@ class PagerPageHolder(
                 }
                 Triple(source, isAnimated, background)
             }
+            val config = Config(
+                zoomDuration = viewer.general.doubleTapAnimDuration,
+                minimumScaleType = viewer.paged.page.imageScaleType.value,
+                cropBorders = viewer.paged.page.cropBorders,
+                zoomStartPosition = viewer.imageZoomType,
+                landscapeZoom = viewer.paged.page.landscapeZoom,
+            )
+            val translator = PageTranslator.get(context, viewer.activity.appGraph.readerPreferences)
+            // The view consumes the image it shows, so keep a copy to translate.
+            val toTranslate = if (!isAnimated &&
+                translator.isEnabled
+            ) {
+                Buffer().also { source.peek().readAll(it) }
+            } else {
+                null
+            }
             withContext(Dispatchers.Main) {
-                setImage(
-                    source,
-                    isAnimated,
-                    Config(
-                        zoomDuration = viewer.general.doubleTapAnimDuration,
-                        minimumScaleType = viewer.paged.page.imageScaleType.value,
-                        cropBorders = viewer.paged.page.cropBorders,
-                        zoomStartPosition = viewer.imageZoomType,
-                        landscapeZoom = viewer.paged.page.landscapeZoom,
-                    ),
-                )
+                setImage(source, isAnimated, config)
                 if (!isAnimated) {
                     pageBackground = background
                 }
                 removeErrorLayout()
+            }
+            // The original stays on screen until the Italian version is ready.
+            val translated = toTranslate?.let { translator.translateForReader(it, page.chapter.chapter.mangaId) }
+            if (translated != null) {
+                withContext(Dispatchers.Main) { setImage(translated, false, config) }
             }
         } catch (e: Throwable) {
             logcat(LogPriority.ERROR, e)

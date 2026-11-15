@@ -6,6 +6,7 @@ import dev.icerock.moko.resources.StringResource
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import eu.kanade.tachiyomi.ui.reader.translate.DeepSeekTranslator
 import eu.kanade.tachiyomi.ui.reader.viewer.webgpu.WebGpuShader
 import eu.kanade.tachiyomi.ui.reader.viewer.webgpu.WebGpuShaders
 import tachiyomi.core.common.preference.Preference
@@ -202,6 +203,22 @@ class ReaderPreferences(
     val showNavigationOverlayOnStart: Preference<Boolean> = preferenceStore.getBoolean(
         "reader_navigation_overlay_on_start",
         false,
+    )
+
+    // endregion
+
+    // region Translation
+
+    val translateToItalian: Preference<Boolean> = preferenceStore.getBoolean("pref_translate_to_italian", false)
+
+    val deepSeekApiKey: Preference<String> = preferenceStore.getString(
+        Preference.privateKey("pref_deepseek_api_key"),
+        "",
+    )
+
+    val deepSeekModel: Preference<String> = preferenceStore.getString(
+        "pref_deepseek_model",
+        DeepSeekTranslator.DEFAULT_MODEL,
     )
 
     // endregion

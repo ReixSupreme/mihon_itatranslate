@@ -1095,4 +1095,12 @@
     <string name="donationCampaign.paragraph3">Regardless, Mihon will continue to be maintained by me and the volunteers, and it will stay open source.</string>
     <string name="donationCampaign.contactPlatform">Discord</string>
     <string name="donationCampaign.dismiss">Dismiss</string>
+    <string name="pref_category_translation">Italian translation</string>
+    <string name="pref_translate_to_italian">Translate pages to Italian</string>
+    <string name="pref_translate_to_italian_summary">Reads the text in speech bubbles and replaces it with an Italian translation made by DeepSeek</string>
+    <string name="pref_deepseek_api_key">DeepSeek API key</string>
+    <string name="pref_deepseek_api_key_set">Set</string>
+    <string name="pref_deepseek_api_key_unset">Not set</string>
+    <string name="pref_deepseek_model">DeepSeek model</string>
+    <string name="translation_failed">Translation failed: %1$s</string>
 </resources>

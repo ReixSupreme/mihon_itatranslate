@@ -892,4 +892,12 @@
     <string name="ext_not_loaded_dialog">Impossibile da caricare</string>
     <string name="ext_not_loaded_details">Perché non è caricata</string>
     <string name="ext_copy_stacktrace">Copia traccia di stack</string>
+    <string name="pref_category_translation">Traduzione in italiano</string>
+    <string name="pref_translate_to_italian">Traduci le pagine in italiano</string>
+    <string name="pref_translate_to_italian_summary">Legge il testo nei balloon e lo sostituisce con una traduzione italiana fatta da DeepSeek</string>
+    <string name="pref_deepseek_api_key">Chiave API DeepSeek</string>
+    <string name="pref_deepseek_api_key_set">Impostata</string>
+    <string name="pref_deepseek_api_key_unset">Non impostata</string>
+    <string name="pref_deepseek_model">Modello DeepSeek</string>
+    <string name="translation_failed">Traduzione non riuscita: %1$s</string>
 </resources>

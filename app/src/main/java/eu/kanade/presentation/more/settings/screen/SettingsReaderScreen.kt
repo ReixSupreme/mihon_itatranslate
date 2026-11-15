@@ -71,6 +71,38 @@ object SettingsReaderScreen : SearchableSettings {
             getWebtoonGroup(readerPreferences = readerPref),
             getNavigationGroup(readerPreferences = readerPref),
             getActionsGroup(readerPreferences = readerPref),
+            getTranslationGroup(readerPreferences = readerPref),
+        )
+    }
+
+    @Composable
+    private fun getTranslationGroup(readerPreferences: ReaderPreferences): Preference.PreferenceGroup {
+        val apiKey by readerPreferences.deepSeekApiKey.collectAsState()
+        return Preference.PreferenceGroup(
+            title = stringResource(MR.strings.pref_category_translation),
+            preferenceItems = listOf(
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = readerPreferences.translateToItalian,
+                    title = stringResource(MR.strings.pref_translate_to_italian),
+                    subtitle = stringResource(MR.strings.pref_translate_to_italian_summary),
+                ),
+                Preference.PreferenceItem.EditTextPreference(
+                    preference = readerPreferences.deepSeekApiKey,
+                    title = stringResource(MR.strings.pref_deepseek_api_key),
+                    // The key is a secret, so the row only says whether one is saved.
+                    subtitle = stringResource(
+                        if (apiKey.isBlank()) {
+                            MR.strings.pref_deepseek_api_key_unset
+                        } else {
+                            MR.strings.pref_deepseek_api_key_set
+                        },
+                    ),
+                ),
+                Preference.PreferenceItem.EditTextPreference(
+                    preference = readerPreferences.deepSeekModel,
+                    title = stringResource(MR.strings.pref_deepseek_model),
+                ),
+            ),
         )
     }
 

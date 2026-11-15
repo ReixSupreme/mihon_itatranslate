@@ -272,6 +272,9 @@ dependencies {
     // HTML parser
     implementation(libs.jsoup)
 
+    // Page translation OCR
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.32.0")
+
     // Disk
     implementation(libs.unifile)
 

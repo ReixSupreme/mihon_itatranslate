@@ -10,6 +10,7 @@ import androidx.core.view.updateMargins
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.ui.reader.model.ReaderPage
+import eu.kanade.tachiyomi.ui.reader.translate.PageTranslator
 import eu.kanade.tachiyomi.ui.reader.viewer.ReaderPageErrorView
 import eu.kanade.tachiyomi.ui.reader.viewer.ReaderPageImageView
 import eu.kanade.tachiyomi.ui.reader.viewer.ReaderProgressIndicator
@@ -190,17 +191,35 @@ class WebtoonPageHolder(
                 val isAnimated = ImageUtil.isAnimatedAndSupported(source)
                 Pair(source, isAnimated)
             }
+            val config = ReaderPageImageView.Config(
+                zoomDuration = viewer.general.doubleTapAnimDuration,
+                minimumScaleType = SubsamplingScaleImageView.SCALE_TYPE_FIT_WIDTH,
+                cropBorders = viewer.longStrip.cropBorders,
+            )
+            val translator = PageTranslator.get(context, viewer.readerPreferences)
+            // The view consumes the image it shows, so keep a copy to translate.
+            val toTranslate = if (!isAnimated &&
+                translator.isEnabled
+            ) {
+                Buffer().also { source.peek().readAll(it) }
+            } else {
+                null
+            }
             withContext(Dispatchers.Main) {
-                frame.setImage(
-                    source,
-                    isAnimated,
-                    ReaderPageImageView.Config(
-                        zoomDuration = viewer.general.doubleTapAnimDuration,
-                        minimumScaleType = SubsamplingScaleImageView.SCALE_TYPE_FIT_WIDTH,
-                        cropBorders = viewer.longStrip.cropBorders,
-                    ),
-                )
+                frame.setImage(source, isAnimated, config)
                 removeErrorLayout()
+            }
+            // The original stays on screen until the Italian version is ready.
+            val mangaId = page?.chapter?.chapter?.mangaId
+            val translated = if (toTranslate != null &&
+                mangaId != null
+            ) {
+                translator.translateForReader(toTranslate, mangaId)
+            } else {
+                null
+            }
+            if (translated != null) {
+                withContext(Dispatchers.Main) { frame.setImage(translated, false, config) }
             }
         } catch (e: Throwable) {
             logcat(LogPriority.ERROR, e)
